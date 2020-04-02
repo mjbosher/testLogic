@@ -1,0 +1,9 @@
+qualatative,quantative#two types of measurement
+qualatative#can't be ordered, not numbers
+nominal,ordinal#two types of qualatative data
+nominal#can be counted
+ordinal#strict order,scalars
+quantative#artificial,don't have true values
+interval,ratio#two types of quantative data
+interval#don't have true 0
+ratio#have a true 0 but relative
