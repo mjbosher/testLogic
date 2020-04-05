@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import (QApplication,QGridLayout,QDesktopWidget,QMainWindow,QFrame)
 import sys
 from fileMenu import FileMenu
-from testWindow import QuestionWindow
+from testWindow import testLogic
 
 class App(QMainWindow):
 	def __init__(self):
 		super().__init__()
 		maingrid = QGridLayout()
-		qframe = QuestionWindow(self).question_window
+		qframe = testLogic(self,'_data-measurement').question_window
 		
 			
 		#to be done later
@@ -15,7 +15,7 @@ class App(QMainWindow):
 		#--------------
 		
 		self.setCentralWidget(qframe)
-		self.setLayout(maingrid)
+		#self.setLayout(maingrid)
 		self.resize(1000,600)
 		self.__adjust__()
 		self.show()
