@@ -7,7 +7,7 @@ class App(QMainWindow):
 	def __init__(self):
 		super().__init__()
 		maingrid = QGridLayout()
-		qframe = testLogic(self,'_data-measurement').question_window
+		qframe = testLogic(self,'/home/michael/Downloads/Workarea/DevLearn/Linux/COMPLETE/_Basics1').question_window
 		
 			
 		#to be done later

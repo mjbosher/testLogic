@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame,QLabel,QGridLayout,QLineEdit,QPushButton
+from PyQt5.QtWidgets import QFrame,QLabel,QGridLayout,QLineEdit,QPushButton,QScrollBar
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import random
@@ -6,42 +6,44 @@ import random
 class QuestionWindow(QFrame):
 	def __init__(self,app):
 #do stats,fix layout, add corrret questions, commit
+#stop lineedit from resizing,make text bigger, 
+#fix bugs ith error messages
+#make lineedit autofocus and enter on enter
+#what is combo box, groupbox
 		super().__init__()
 		self.app = app
-		self.question_window=QFrame()
-		self.question_window.setStyleSheet('background:white')
-
-		self.questionLabel = QLabel('')
-		self.questionLabel.setText('hello')
-		self.questionLabel.setFont(QFont('Ubuntu',20))
-		self.questionLabel.setStyleSheet('color:red')
-
-		self.questionLabel.setAlignment(Qt.AlignCenter|Qt.AlignVCenter)
-		self.currentQuestionNumber,self.questionCorrect, self.questionWrong=QLabel(''),QLabel(''),QLabel()
-
-		self.currentQuestionNumber.setFont(QFont('Ubuntu',13))
-		self.currentQuestionNumber.setStyleSheet('color:blue')
-
-		self.questionCorrect.setFont(QFont('Ubuntu',13))
-		self.questionCorrect.setStyleSheet('color:green')
-		
-		self.questionWrong.setFont(QFont('Ubuntu',13))
-		self.questionWrong.setStyleSheet('color:red')
-		
-		self.wrongAnswerLabel=QLabel('')
-		self.wrongAnswerLabel.setFont(QFont('Ubuntu',13))
-		
-		self.answerLabel=QLabel('')
-		self.answerLabel.setFont(QFont('Ubuntu',13))
-		self.answerLabel.setStyleSheet('color:red')
-
-		self.answerBox = QLineEdit()
-		self.checkAnswer = QPushButton('Check Answer')
-		self.answerBox.setStyleSheet('color:blue')
-		self.answerBox.setFrame(1)
-	
+		self.question_window=QFrame()		
 		grid = QGridLayout()
 		self.question_window.setLayout(grid)
+
+		
+		self.currentQuestionNumber=QLabel('')
+		self.questionCorrect=QLabel('')
+		self.questionWrong=QLabel('')
+		self.questionLabel = QLabel('')
+		self.wrongAnswerLabel=QLabel('')
+		self.answerLabel=QLabel('')
+		self.answerBox = QLineEdit()
+		self.checkAnswer = QPushButton('Check Answer')
+
+		self.currentQuestionNumber.setFont(QFont('Ubuntu',13))
+		self.questionCorrect.setFont(QFont('Ubuntu',13))
+		self.questionWrong.setFont(QFont('Ubuntu',13))
+		self.answerLabel.setFont(QFont('Ubuntu',13))
+		self.wrongAnswerLabel.setFont(QFont('Ubuntu',13))
+		self.questionLabel.setFont(QFont('Ubuntu',20))
+		self.questionWrong.setStyleSheet('color:red')
+		
+		self.answerLabel.setStyleSheet('color:red')
+		self.questionCorrect.setStyleSheet('color:green')
+		self.currentQuestionNumber.setStyleSheet('color:blue')
+		self.answerBox.setStyleSheet('color:blue')		
+		self.question_window.setStyleSheet('background:white')
+		self.questionLabel.setStyleSheet('color:red')
+		
+		self.questionLabel.setAlignment(Qt.AlignCenter|Qt.AlignVCenter)
+
+		self.answerBox.setFrame(1)
 		
 		grid.addWidget(self.currentQuestionNumber,0,0)
 		grid.addWidget(self.questionCorrect,0,2,1,1)
@@ -54,46 +56,101 @@ class QuestionWindow(QFrame):
 		grid.addWidget(self.answerLabel,11,1,1,1)
 		grid.addWidget(self.checkAnswer,12,3)
 
-	def statsFrame(self):
-		x=QFrame()
-		self.app.setCentralWidget(x)
-		grid = QGridLayout()
-		x.setLayout(grid)	
-		x.setStyleSheet('background:blue')		
-		
+class Stats:
+	def statsFrame(self,testLogic):
+		statFrame=QFrame()
+		self.testLogic = testLogic
+		self.testLogic.app.setCentralWidget(statFrame)
+		self.grid = QGridLayout()
 
+		statFrame.setLayout(self.grid)	
+		statFrame.setStyleSheet('background:white')
+
+		questionFrame = QFrame(statFrame)
+		self.grid.addWidget(questionFrame,0,0,5,1)
+		subgrid = QGridLayout()
+		
+		questionFrame.setLayout(subgrid)
+
+		self.file = [x.rstrip() for x in open(self.testLogic.file)]
+		
+		self.labels = [QLabel(''),QLabel(''),QLabel(''),QLabel(''),QLabel(''),QLabel('')]
+		
+		for n,i in enumerate(self.labels): subgrid.addWidget(i,n,0)
+		
+		self.scrollbar = QScrollBar()
+		maximum = int(len(self.file)/6)
+		self.scrollbar.setMaximum(maximum)
+		subgrid.addWidget(self.scrollbar,0,1,7,1)
+		self.scrollbar.valueChanged.connect(lambda: self.Subset(self.scrollbar.value()))
+		self.addlabels(self.file[0:6])
+	def addlabels(self,subset):
+		for n,i in enumerate(subset):
+			self.labels[n].setText(i)
+			if i in self.testLogic.errors:
+				self.labels[n].setStyleSheet('color:red')
+				
+			else:
+				self.labels[n].setStyleSheet('color:green')
+			#y.setFixedHeight(20)
+	def Subset(self,b):
+		self.setDefault()
+		start,stop=(b)*6,(b+1)*6
+		if stop > len(self.file):
+			stop = len(self.file)
+		subset=self.file[start:stop]
+		self.addlabels(subset)
+		self.oldscroll_val = self.scrollbar.value()
+		print(start,stop)
+	def setDefault(self):
+		[i.setText('') for i in self.labels]
+		#split the answers and questions for display	
+		#what happens if lens is not equal for example, lens here says 18 but actual lens is 14
+		#fix clicked part of scroll bar
 class testLogic(QuestionWindow):
 	def __init__(self,app,file):
 		super().__init__(app)
-		
+		self.file = file
 		self.correctAnswersPercent = 0
 		self.wrongAnswersPercent = 0
 		self.correctAnswers = 0
 		self.wrongAnswers = 0
-		self.checkAnswer.clicked.connect(lambda:self.check_answer(0))
-		self.errors = []
-		self.file = file
-		self.data = [x.rstrip() for x in open(self.file) if x != '\n']
 		self.questionNumber = 0
+		self.errors = []
+
+		self.checkAnswer.clicked.connect(lambda:self.check_answer(0))
+		self.answerBox.returnPressed.connect(lambda:self.check_answer(0))	
+		self.data = [x.rstrip() for x in open(self.file) if x != '\n']
 		self.totalQuestions = len(self.data)
 		self.pointStep = 100/self.totalQuestions 
+
 		self.parseData()
 		
 		#need to writeout self.errors
 	def parseData(self):
 		if len(self.data) != 0:
-			self.questionNumber+=1
+			
 			self.origData = random.choice(self.data)
-			splitData = self.origData.split('#')
-			self.answer = splitData[0]
-			self.question = splitData[1]
+			self.answer,self.question = self.origData.split('#')
 			self.askQuestion(self.question,self.answer)
+
 			self.tries = 0
+			self.questionNumber+=1
+
 			self.wrongAnswerLabel.setText('')
+			
 			self.data.remove(self.origData)
 		else:
 			self.question_window.close()
-			self.statsFrame()
+			Stats().statsFrame(self)
+		
+	def askQuestion(self,q,a):
+		
+		self.currentQuestionNumber.setText(f'Question: {self.questionNumber} of {self.totalQuestions}')
+		self.questionCorrect.setText(f'correct: {self.correctAnswers} ({round(self.correctAnswersPercent)}%)')
+		self.questionWrong.setText(f'wrong: {self.wrongAnswers} ({round(self.wrongAnswersPercent)}%)')
+		self.questionLabel.setText(q)
+		self.answerBox.setFocus()	
 	def check_answer(self,x):
 		
 		userInput = self.answerBox.text()
@@ -124,17 +181,13 @@ class testLogic(QuestionWindow):
 			self.wrongAnswerLabel.setText('wrong answer: try again')
 			self.wrongAnswerLabel.setStyleSheet(f'color:{color}')
 			self.answerBox.clear()
-
-	def askQuestion(self,q,a):
-		self.currentQuestionNumber.setText(f'Question: {self.questionNumber} of {self.totalQuestions}')
-		self.questionCorrect.setText(f'correct: {self.correctAnswers} ({round(self.correctAnswersPercent)}%)')
-		self.questionWrong.setText(f'wrong: {self.wrongAnswers} ({round(self.wrongAnswersPercent)}%)')
-		self.questionLabel.setText(q)
-		#write current number of right/wrong questions
-		
 		
 	def errorCollector(self,error): 
 		self.errors.append(error)
 	def complete(self):
 		return(self.file, self.correctAnswers, self.wrongAnswersPercent, self.wrongAnswers, self.wrongAnswersPercent, self.error)
-#estLogic('_data-measurement')
+
+#show wrong,correct questions with answers in columns
+#correct percentage
+#incorrect percentage
+#date,time
