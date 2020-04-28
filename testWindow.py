@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QFrame,QLabel,QGridLayout,QLineEdit,QPushButton,QScrollBar
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont,QIcon
+from PyQt5.QtCore import Qt,QSize
 import random
 
 class QuestionWindow(QFrame):
@@ -8,8 +8,8 @@ class QuestionWindow(QFrame):
 #do stats,fix layout, add corrret questions, commit
 #stop lineedit from resizing,make text bigger, 
 #fix bugs ith error messages
-#make lineedit autofocus and enter on enter
 #what is combo box, groupbox
+
 		super().__init__()
 		self.app = app
 		self.question_window=QFrame()		
@@ -24,8 +24,15 @@ class QuestionWindow(QFrame):
 		self.wrongAnswerLabel=QLabel('')
 		self.answerLabel=QLabel('')
 		self.answerBox = QLineEdit()
-		self.checkAnswer = QPushButton('Check Answer')
+		self.checkAnswer = QPushButton('')
+	
+		self.answerBox.setFocus(1)
+		self.answerBox.setAlignment(Qt.AlignCenter)
+		icon = QIcon('next.jpeg')
 
+		self.checkAnswer.setIcon(QIcon(icon))
+		self.checkAnswer.setIconSize(QSize(150,150))
+		self.checkAnswer.setFixedSize(150,150)
 		self.currentQuestionNumber.setFont(QFont('Ubuntu',13))
 		self.questionCorrect.setFont(QFont('Ubuntu',13))
 		self.questionWrong.setFont(QFont('Ubuntu',13))
@@ -37,10 +44,12 @@ class QuestionWindow(QFrame):
 		self.answerLabel.setStyleSheet('color:red')
 		self.questionCorrect.setStyleSheet('color:green')
 		self.currentQuestionNumber.setStyleSheet('color:blue')
-		self.answerBox.setStyleSheet('color:blue')		
+		self.answerBox.setStyleSheet(
+			'color:blue; border-width: 1px; border-style: solid; border-color: white white black white;')		
 		self.question_window.setStyleSheet('background:white')
 		self.questionLabel.setStyleSheet('color:red')
-		
+		self.checkAnswer.setStyleSheet('border:1px solid white;border-radius:50%')
+			
 		self.questionLabel.setAlignment(Qt.AlignCenter|Qt.AlignVCenter)
 
 		self.answerBox.setFrame(1)
@@ -115,7 +124,7 @@ class testLogic(QuestionWindow):
 		self.wrongAnswersPercent = 0
 		self.correctAnswers = 0
 		self.wrongAnswers = 0
-		self.questionNumber = 0
+		self.questionNumber = 1
 		self.errors = []
 
 		self.checkAnswer.clicked.connect(lambda:self.check_answer(0))
@@ -187,7 +196,5 @@ class testLogic(QuestionWindow):
 	def complete(self):
 		return(self.file, self.correctAnswers, self.wrongAnswersPercent, self.wrongAnswers, self.wrongAnswersPercent, self.error)
 
-#show wrong,correct questions with answers in columns
-#correct percentage
-#incorrect percentage
+
 #date,time
