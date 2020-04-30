@@ -9,10 +9,11 @@ class QuestionWindow(QFrame):
 #stop lineedit from resizing,make text bigger, 
 #fix bugs ith error messages
 #what is combo box, groupbox
-
+#i think there is an extra click in the answerbox that doesnt register whether the answrr is right or not
 		super().__init__()
 		self.app = app
-		self.question_window=QFrame()		
+		self.question_window=QFrame()
+		self.question_window.setFixedSize(1000,600)		
 		grid = QGridLayout()
 		self.question_window.setLayout(grid)
 
@@ -31,16 +32,19 @@ class QuestionWindow(QFrame):
 		icon = QIcon('next.jpeg')
 
 		self.checkAnswer.setIcon(QIcon(icon))
-		self.checkAnswer.setIconSize(QSize(150,150))
+		self.checkAnswer.setIconSize(QSize(200,200))
 		self.checkAnswer.setFixedSize(150,150)
+		self.checkAnswer.setAttribute(Qt.WA_TranslucentBackground)
+		self.questionLabel.setWordWrap(True)
 		self.currentQuestionNumber.setFont(QFont('Ubuntu',13))
 		self.questionCorrect.setFont(QFont('Ubuntu',13))
-		self.questionWrong.setFont(QFont('Ubuntu',13))
-		self.answerLabel.setFont(QFont('Ubuntu',13))
+		self.questionWrong.setFont(QFont('Ubuntu',15))
+		self.answerLabel.setFont(QFont('Ubuntu',17))
 		self.wrongAnswerLabel.setFont(QFont('Ubuntu',13))
 		self.questionLabel.setFont(QFont('Ubuntu',20))
+		self.answerBox.setFont(QFont('Ubuntu',20))
 		self.questionWrong.setStyleSheet('color:red')
-		
+	
 		self.answerLabel.setStyleSheet('color:red')
 		self.questionCorrect.setStyleSheet('color:green')
 		self.currentQuestionNumber.setStyleSheet('color:blue')
@@ -53,17 +57,17 @@ class QuestionWindow(QFrame):
 		self.questionLabel.setAlignment(Qt.AlignCenter|Qt.AlignVCenter)
 
 		self.answerBox.setFrame(1)
-		
+		self.answerLabel.setWordWrap(True)
 		grid.addWidget(self.currentQuestionNumber,0,0)
-		grid.addWidget(self.questionCorrect,0,2,1,1)
-		grid.addWidget(self.questionWrong,0,3,1,1)
+		grid.addWidget(self.questionCorrect,0,2)
+		grid.addWidget(self.questionWrong,0,4)
 		
-		grid.addWidget(self.questionLabel,1,0,10,4)
-		grid.addWidget(self.wrongAnswerLabel,11,0,1,2)
-		grid.addWidget(self.answerBox,12,0,1,3)
+		grid.addWidget(self.questionLabel,1,1,2,3)
+		grid.addWidget(self.wrongAnswerLabel,4,2,1,2)
+		grid.addWidget(self.answerBox,3,1,1,3)
 
-		grid.addWidget(self.answerLabel,11,1,1,1)
-		grid.addWidget(self.checkAnswer,12,3)
+		grid.addWidget(self.answerLabel,5,2,1,1)
+		grid.addWidget(self.checkAnswer,5,4)
 
 class Stats:
 	def statsFrame(self,testLogic):
@@ -155,7 +159,7 @@ class testLogic(QuestionWindow):
 		
 	def askQuestion(self,q,a):
 		
-		self.currentQuestionNumber.setText(f'Question: {self.questionNumber} of {self.totalQuestions}')
+		self.currentQuestionNumber.setText(f'Question: {self.questionNumber} of {self.totalQuestions+1}')
 		self.questionCorrect.setText(f'correct: {self.correctAnswers} ({round(self.correctAnswersPercent)}%)')
 		self.questionWrong.setText(f'wrong: {self.wrongAnswers} ({round(self.wrongAnswersPercent)}%)')
 		self.questionLabel.setText(q)
@@ -164,16 +168,14 @@ class testLogic(QuestionWindow):
 		
 		userInput = self.answerBox.text()
 		if self.tries == 2:
-			self.answerLabel.setText(f'ANSWER IS: {self.answer} ')
+			self.answerLabel.setText(f'ANSWER IS:\n {self.answer} ')
 			self.errorCollector(self.origData)
 			self.wrongAnswersPercent+=self.pointStep
 			self.wrongAnswers+=1
-			self.checkAnswer.setText('Next')
 			self.tries+=1
 		elif self.tries ==3:
 			self.parseData()
 			self.answerBox.clear()
-			self.checkAnswer.setText('Check Answer')
 			self.answerLabel.setText('')
 		elif userInput == self.answer:
 			self.correctAnswersPercent+=self.pointStep
